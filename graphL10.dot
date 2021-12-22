@@ -1,0 +1,14 @@
+strict digraph A { 
+Arequipa
+Arequipa->trujillo[label =1]
+Arequipa->lima[label =2]
+trujillo
+trujillo->puno[label =4]
+lima
+lima->trujillo[label =1]
+lima->puno[label =2]
+puno
+puno->cusco[label =3]
+tumbes
+cusco
+}

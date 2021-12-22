@@ -10,11 +10,11 @@ class Grafo
 {
 private:
     int n;
-    vector<V> nombres;     // Almacena el valor de los vertices
-    map<V, int> mapn;      // Almacena cada vértice con un valor de pos. o indice
-    vector<vector<A>> ady; // Almacena las aristas entre dos vectores
-    vector<int> ordenados; // Almacena orden topológico
-    vector<int> gradoE;    // Almacena el número de aristas dirigidas a cada nodo
+    vector<V> nombres;        // vertices
+    map<V, int> mapn;         //
+    vector<vector<A>> ady;    // Almacena las adyacencias
+    vector<string> ordenados; // Almacena orden topológico
+    vector<int> gradoE;       // Almacena el número de aristas dirigidas a cada nodo
 public:
     Grafo() : n{0}, ady{0} {};
     Grafo<V, A> &operator=(const Grafo<V, A> &other)
@@ -44,12 +44,13 @@ public:
     void insertarNodo(V);
     void veradyacencia();
     void insertarArista(V a, V b, A arista); // inserta una nueva arista con dirección en caso no exista
-    void borrarNodo(V a);                    // que elimina un nodo en caso exista.
-    void borrarArista(V a, V b);             // que elimina una arista en caso esta exista.
-    bool esVacio();                          // que retorna true en caso el Grafo<V,A>::sea vacío.
-    bool existeNodo(V a);                    // que comprueba y retorna true si un nodo se encuentra en el
-    A caminoMinimo(V a, V b);                // que retorna el camino mínimo de existir entre un nodo origen y un nodo destino.
-    void ordenTopologico();                  // que retorna el orden topológico del Grafo<V,A>::dirigido.
+    void borrarNodo(V a);
+    void graficar();             // que elimina un nodo en caso exista.
+    void borrarArista(V a, V b); // que elimina una arista en caso esta exista.
+    bool esVacio();              // que retorna true en caso el Grafo<V,A>::sea vacío.
+    bool existeNodo(V a);        // que comprueba y retorna true si un nodo se encuentra en el
+    A caminoMinimo(V a, V b);    // que retorna el camino mínimo de existir entre un nodo origen y un nodo destino.
+    void ordenTopologico();      // que retorna el orden topológico del Grafo<V,A>::dirigido.
     // importantes
     void indices();
     void gradoEntrada();
@@ -62,7 +63,12 @@ public:
     void reordenarmatrix(vector<vector<A>> &x);
     void warshal(vector<vector<A>> &x);
 
-    void graficar();
+    ~Grafo()
+    {
+        nombres.clear();
+        mapn.clear();
+        ady.clear();
+    }
 };
 
 template <class V, class A>
@@ -83,7 +89,7 @@ void Grafo<V, A>::insertarNodo(V nodo)
     {
         nombres.push_back(nodo);
         mapn[nodo] = nombres.size() - 1;
-        cout << "\nValor de mapn[" << nodo << "]: " << mapn[nodo];
+        // cout << mapn[nodo];
         n = n + 1;
         ady.resize(n);
         for (int i = 0; i < n; i++)
@@ -98,7 +104,7 @@ void Grafo<V, A>::veradyacencia()
     {
         for (int j = 0; j < n; j++)
         {
-            cout << ady[i][j];
+            cout.width(2); cout << ady[i][j];
         }
         cout << endl;
     }
@@ -107,16 +113,13 @@ void Grafo<V, A>::veradyacencia()
 template <class V, class A>
 void Grafo<V, A>::insertarArista(V a, V b, A arista)
 {
+
     if (existeNodo(a) && existeNodo(b))
     {
         int pa = mapn[a];
-        cout << "\nPosición de vértice[" << a << "]: " << pa;
         int pb = mapn[b];
-        cout << "\nPosición de vértice[" << b << "]: " << pb;
         if (ady[pa][pb] == 0)
             ady[pa][pb] = arista;
-        cout << "\nPeso de la arista: " << arista;
-        cout << endl;
     }
 }
 
@@ -139,7 +142,7 @@ void Grafo<V, A>::borrarNodo(V a)
                     ady[i - 1][j] = ady[i][j];
                     ++j;
                 }
-                // cout << i;
+                cout << i;
                 ++i;
             }
 
@@ -152,7 +155,7 @@ void Grafo<V, A>::borrarNodo(V a)
                     ady[i][j - 1] = ady[i][j];
                     ++i;
                 }
-                // cout << j;
+                cout << j;
                 ++j;
             }
         }
@@ -171,12 +174,11 @@ void Grafo<V, A>::borrarNodo(V a)
         }
     }
 }
-
 template <class V, class A>
 void Grafo<V, A>::graficar()
 {
     ofstream arch;
-    arch.open("./graphL10.dot");
+    arch.open("./Grafo_Malla.dot");
     if (arch.is_open())
     {
         arch << "strict digraph A { \n";
@@ -193,15 +195,14 @@ void Grafo<V, A>::graficar()
         }
         arch << "}\n";
         arch.close();
-        system("dot -Tpng ./graphL10.dot -o ./graphL10.png ");
-        system("./graphL10.png ");
+        system("dot -Tpng ./Grafo_Malla.dot -o ./Grafo_Malla.png ");
+        system("./Grafo_Malla.png ");
     }
     else
     {
         cout << "error al crear archivo";
     }
 }
-
 template <class V, class A>
 void Grafo<V, A>::borrarArista(V a, V b)
 {
@@ -210,10 +211,7 @@ void Grafo<V, A>::borrarArista(V a, V b)
         int pa = mapn[a];
         int pb = mapn[b];
         if (ady[pa][pb] != 0)
-        {
             ady[pa][pb] = 0;
-            cout << "Se borro la arista de (" << a << "," << b << ")";
-        }
     }
 }
 template <class V, class A>
@@ -233,21 +231,45 @@ bool Grafo<V, A>::existeNodo(V a)
         return false;
 }
 
-template <class A>
-void print(vector<vector<A>>);
-
 template <class V, class A>
 A Grafo<V, A>::caminoMinimo(V a, V b)
 {
     vector<vector<A>> x;
     warshal(x);
-    print(x);
     int i = mapn[a];
-    cout << "Pos. de " << a << ": " << i << endl;
+    cout << i;
     int j = mapn[b];
-    cout << "Pos de " << b << ": " << j << endl;
-    cout << "Peso de la ruta más corta: " << x[i][j] << endl;
+    cout << j;
     return x[i][j];
+}
+
+template <class V, class A>
+void Grafo<V, A>::floyd(vector<vector<A>> &x)
+{
+
+    x.resize(n);
+    for (int i = 0; i < n; i++)
+        x[i].resize(n);
+
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+            x[i][j] = ady[i][j];
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            for (int k = 0; k < n; k++)
+            {
+                if (x[i][j] || (x[i][k] && x[k][j]))
+                {
+                    x[i][j] = 1;
+                }
+            }
+        }
+    }
 }
 
 template <class V, class A>
@@ -287,35 +309,6 @@ void Grafo<V, A>::warshal(vector<vector<A>> &x)
     }
 }
 
-template <class V, class A>
-void Grafo<V, A>::floyd(vector<vector<A>> &x)
-{
-
-    x.resize(n);
-    for (int i = 0; i < n; i++)
-        x[i].resize(n);
-
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-            x[i][j] = ady[i][j];
-    }
-
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            for (int k = 0; k < n; k++)
-            {
-                if (x[i][j] || (x[i][k] && x[k][j]))
-                {
-                    x[i][j] = 1;
-                }
-            }
-        }
-    }
-}
-
 template <class A>
 void print(vector<vector<A>> x)
 {
@@ -323,7 +316,6 @@ void print(vector<vector<A>> x)
     {
         for (int j = 0; j < x.size(); j++)
         {
-            cout.width(5);
             cout << x[i][j] << " ";
         }
         cout << endl;
@@ -333,18 +325,26 @@ void print(vector<vector<A>> x)
 template <class V, class A>
 void Grafo<V, A>::adyacenciaUno(int a)
 {
+    // cout<<endl<<"Adyacencia a "<<a<<" son :";
+
     for (int i = 0; i < n; i++)
     {
         if (ady[a][i] != 0)
         {
             gradoE[a] = gradoE[a] - 1;
+            // cout<<gradoE[i]<<endl;
         }
         else if (gradoE[i] == 0 && (find(ordenados.begin(), ordenados.end(), nombres[i]) != ordenados.end()) == false)
         {
+            // cout<<endl<<"HA SIDO INSERTADO: "<<nombres[i]<<endl;
             ordenados.push_back(nombres[i]);
         }
     }
+    // cout<<"Adyacencia: ";
+    // for(int i=0;i<n;i++)
+    // cout<<gradoE[i]<<",";
 }
+
 template <class V, class A>
 void Grafo<V, A>::ordenTopologico()
 {
@@ -352,7 +352,6 @@ void Grafo<V, A>::ordenTopologico()
     {
         if (gradoE[i] == 0)
         {
-            // ordenados.push_back(nombres[i]);
             adyacenciaUno(mapn[nombres[i]]);
         }
         if (gradoE[i] == 1)
@@ -364,12 +363,10 @@ void Grafo<V, A>::ordenTopologico()
             adyacenciaUno(mapn[nombres[i]]);
         }
     }
-    cout << endl;
-    cout << "Lista de ordenados:  ";
-    for (int i = 0; i < n; i++)
+    cout << "Lista de vertices ordenados:\n------------------------------\n";
+    for (int i = 1; i < n; i++)
     {
-
-        cout << ordenados[i] << "-->";
+        cout.width(10); cout << ordenados[i]; cout << "-->";
     }
     cout << endl;
 }
@@ -377,84 +374,117 @@ void Grafo<V, A>::ordenTopologico()
 template <class V, class A>
 void Grafo<V, A>::indices()
 {
-    cout << "INDICES : ";
-    for (int i = 0; i < n; i++)
-        cout << nombres[i] << "indice: " << mapn[nombres[i]] << " , ";
+    cout << "Código : Índice: \n-----------------\n";
+    for (int i = 1; i < n; i++)
+    {
+        cout.width(10); cout<<right << nombres[i] << ":";
+        cout.width(3); cout << mapn[nombres[i]];
     // cout<<endl;
+    }
 }
 
 template <class V, class A>
 void Grafo<V, A>::gradoEntrada()
 {
-    cout << "INDICES : ";
+    cout << "Código : Grado del vertice: \n----------------------------\n";
 
     for (int a = 0; a < n; a++)
     {
-        cout << nombres[a] << " tiene ";
+        cout.width(10); cout << nombres[a] << ":";
 
         int cont = 0;
         for (int j = 0; j < n; j++)
         {
             if (ady[a][j] != 0)
             {
-                // cout<<<<" ";
                 cont = cont + 1;
             }
         }
         gradoE.push_back(cont);
-        cout << cont;
-        cout << endl;
+        cout.width(3); cout << cont;
     }
 }
 
 template <class V, class A>
 void Grafo<V, A>::printgradoEntrada()
 {
-    cout << "Grado de entrada: ";
+    cout << "\nGrado de entrada: ";
     for (int i = 0; i < n; i++)
         cout << gradoE[i] << ",";
 }
 
 int main()
 {
-    Grafo<std::string, float> N;
-    N.insertarNodo("Arequipa");
-    N.insertarNodo("trujillo");
-    N.insertarNodo("lima");
-    N.insertarNodo("puno");
-    N.insertarNodo("tumbes");
-    N.insertarNodo("cusco");
+    //////// GRAFO DE MALLA CURRICULAR  ////////
+    Grafo<string, int> M;
+    
+    ifstream archivo("Malla_Curricular.csv");
+    string linea;
+    char delimitador = ',';
+    cout << "==================" << endl;
+
+    while (getline(archivo, linea))
+    {
+
+        stringstream stream(linea); // Convertir la cadena a un stream
+        string Codigo, Nombre_Curso, Pre_Req1, Pre_Req2;
+
+        getline(stream, Codigo, delimitador);
+        getline(stream, Nombre_Curso, delimitador);
+        getline(stream, Pre_Req1, delimitador);
+        getline(stream, Pre_Req2, delimitador);
+        // Imprimir
+        // cout << "Codigo: " << Codigo << endl;
+        M.insertarNodo(Codigo);
+    }
+    archivo.close();
+
+    ///////////////////otro
+    ifstream archivo2("Malla_Curricular.csv");
+
+    cout<< setw(50) << left << "\nNOMBRE DEL CURSO";
+    cout<< setw(10) << "CODIGO:\n";
+    cout<< left << "---------------------------------------------------------\n";
+
+    while (getline(archivo2, linea))
+    {
+        stringstream stream(linea); // Convertir la cadena a un stream
+        string Codigo, Nombre_Curso, Pre_Req1, Pre_Req2;
+        getline(stream, Codigo, delimitador);
+        getline(stream, Nombre_Curso, delimitador);
+        getline(stream, Pre_Req1, delimitador);
+        getline(stream, Pre_Req2, delimitador);
+        // Imprimir
+        // cout.width(50);cout << Nombre_Curso;
+        cout << setw(50) << left << Nombre_Curso;
+        cout.widen(10); cout<< Codigo <<endl;
+        // cout<<"Prequisito"<<Pre_Req1;
+        M.insertarArista(Codigo, Pre_Req1, 1);
+        M.insertarArista(Codigo, Pre_Req2, 1);
+    }
+    archivo2.close();
+    M.graficar();
     cout << endl;
+    
+    cout << "\nVER MATRIZ DE ADYACENCIAS \n";
+    M.veradyacencia();
+    cout<<endl;
 
-    cout << "\nINSERTANDO ARISTAS\n";
-    N.insertarArista("Arequipa", "trujillo", 1);
-    N.insertarArista("Arequipa", "lima", 2);
-    N.insertarArista("trujillo", "puno", 4);
-    N.insertarArista("lima", "trujillo", 1);
-    N.insertarArista("lima", "puno", 2);
-    N.insertarArista("puno", "cusco", 3);
-    N.insertarArista("cusco", "tumbes", 1);
-    // N.graficar();
 
-    cout << "\nBORRANDO ARISTAS\n";
-    N.borrarArista("cusco", "tumbes");
-    cout << endl;
+    cout << "\nVER INDICES \n";
+    M.indices();
+    cout<<endl;
+    
+    cout << "\nVER GRADOS DE LOS VERTICES \n";
+    M.gradoEntrada();
+    M.printgradoEntrada();
+    cout<<endl;
 
-    cout << "\nBORRANDO NODOS\n";
-    // N.borrarNodo("trujillo");
-    cout << (N.existeNodo("trujillo") ? "Si existe el vértice trujillo" : "No existe el vértice trujillo");
-    cout << endl;
-
-    cout << "\nEXISTE NODO\n";
-    cout << (N.existeNodo("tumbes") ? "El nodo existe en el grafo" : "El nodo no existe en el grafo") << endl;
-
-    cout << "\nCAMÍNO MÍNIMO\n";
-    N.caminoMinimo("Arequipa", "cusco");
-    cout << endl;
-
-    N.graficar();
-    cout << endl;
-    cout << endl;
-
-    return 0;
+    cout << "\nVER ORDEN TOPOLÓGICO \n";
+    M.ordenTopologico();
+    
+    cout << "\nCORROBORAR ORDEN TOPOLÓGICO";
+    M.printgradoEntrada();
+    cout<<endl;
+    cout<<endl;
 }
